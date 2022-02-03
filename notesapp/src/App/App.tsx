@@ -1,6 +1,6 @@
-import React, {useRef} from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { addNote, deletenote } from "action/index";
+import { addNote, editNote, deleteNote } from "action/index";
 import storeType from "types/storeType";
 import AppPropType from "./AppPropType";
 import {
@@ -11,10 +11,42 @@ import {
   FormControl,
   Button,
 } from "react-bootstrap";
-import { ADDRCONFIG } from "dns";
 
-const App: React.FC <AppPropType> = ({ notes, addNote, deletenote }) => {
+const getLocalData = () => {
+  const lists = localStorage.getItem("lists");
+
+  console.log(lists);
+
+  if (lists) {
+    return JSON.parse(lists);
+  } else {
+    return [];
+  }
+};
+
+const App: React.FC<AppPropType> = ({
+  notes,
+  addNote,
+  editNote,
+  deleteNote,
+}) => {
+
+  const [note, setNote] = useState(getLocalData());
   const input = useRef<HTMLInputElement>(null);
+
+  notes = JSON.parse(localStorage.getItem("lists") || "{}");
+
+  const removeNote = (_note: string) => {
+    const removeArr = [...notes].filter((note) => note !== _note);
+
+    setNote(removeArr);
+    window.location.reload();
+  };
+
+  const remove = (note: string) => {
+    removeNote(note);
+    deleteNote(note);
+  };
 
   const renderList = () => {
     return (
@@ -24,13 +56,20 @@ const App: React.FC <AppPropType> = ({ notes, addNote, deletenote }) => {
           return (
             <ListGroupItem
               key={index}
+              variant="success"
               style={{ display: "flex", justifyContent: "space-between" }}
             >
               <div>{note}</div>
               <div>
                 <i
+                  className="fa fa-edit m-2"
+                  onClick={() => editNote(note)}
+                  style={{ cursor: "pointer" }}
+                ></i>
+                <i
                   className="fas fa-trash m-2"
-                  onClick={() => deletenote(note)}
+                  onClick={() => remove(note)}
+                  style={{ cursor: "pointer" }}
                 ></i>
               </div>
             </ListGroupItem>
@@ -40,29 +79,37 @@ const App: React.FC <AppPropType> = ({ notes, addNote, deletenote }) => {
     );
   };
 
+  //adding localstorage
+
+  useEffect(() => {
+    localStorage.setItem("lists", JSON.stringify(note));
+  }, [note]);
+
   const add = () => {
     if (input.current) {
       const val = input.current.value;
       input.current.value = "";
       addNote(val);
+
+      const newNotes = [val, ...notes];
+      setNote(newNotes);
+      window.location.reload();
     }
   };
 
   return (
     <Container>
-      <InputGroup className="m-5">
-        <FormControl placeholder="Notes" ref={input}/>
-        <InputGroup>
-          <Button variant="primary" onClick={() => add()}>
-            <i className="fas fa-plus mr-3"></i>
-            Add
-          </Button>
-        </InputGroup>
+      <h1 style={{textAlign: "center", marginTop: 50}}>NOTEPAD</h1>
+      <InputGroup className="m-5" style={{ width: 500 }}>
+        <FormControl placeholder="Notes" ref={input} />
+        <Button variant="primary" onClick={() => add()}>
+          <i className="fas fa-plus mr-3" style={{ marginRight: 10 }}></i>
+          Add
+        </Button>
       </InputGroup>
       {renderList()}
     </Container>
   );
-
 };
 
 const mapStatetoProps = (state: storeType) => {
@@ -72,4 +119,4 @@ const mapStatetoProps = (state: storeType) => {
   };
 };
 
-export default connect(mapStatetoProps, { addNote, deletenote })(App); //give access to the states and run the action creators we have created
+export default connect(mapStatetoProps, { addNote, editNote, deleteNote })(App); //give access to the states and run the action creators we have created

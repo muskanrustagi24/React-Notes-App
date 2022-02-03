@@ -1,5 +1,6 @@
 import {
     addNoteActionCreator,
+    editNoteActionCreator,
     deleteNoteActionCreator
 } from "types/actionCreatorType";
 
@@ -10,7 +11,14 @@ export const addNote : addNoteActionCreator = (note) => {
   };
 };
 
-export const deletenote : deleteNoteActionCreator = (note) => {
+export const editNote: editNoteActionCreator = (note) => {
+  return {
+    type: "EDIT_NOTE",
+    note,
+  };
+};
+
+export const deleteNote : deleteNoteActionCreator = (note) => {
   return {
     type: "DELETE_NOTE",
     note,

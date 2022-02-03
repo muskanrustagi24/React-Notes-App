@@ -1,10 +1,11 @@
 import {notes} from 'types/storeType'
-import {addNoteActionCreator,deleteNoteActionCreator} from 'types/actionCreatorType'
+import {addNoteActionCreator,editNoteActionCreator, deleteNoteActionCreator} from 'types/actionCreatorType'
 
 interface AppPropType {
   notes: notes;
   addNote: addNoteActionCreator,
-  deletenote: deleteNoteActionCreator;
+  editNote: editNoteActionCreator,
+  deleteNote: deleteNoteActionCreator;
 }
 
 export default AppPropType;
